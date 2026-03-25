@@ -14,39 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      leads: {
-        Row: {
-          city: string
-          company_name: string
-          created_at: string
-          id: string
-          niche: string
-          phone: string
-          slug: string
-          updated_at: string
-        }
-        Insert: {
-          city: string
-          company_name: string
-          created_at?: string
-          id?: string
-          niche: string
-          phone: string
-          slug: string
-          updated_at?: string
-        }
-        Update: {
-          city?: string
-          company_name?: string
-          created_at?: string
-          id?: string
-          niche?: string
-          phone?: string
-          slug?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
