@@ -238,7 +238,8 @@ const LeadSite = () => {
             <h2 className="salon-heading mb-5">Sua opinião importa</h2>
             <div className="w-16 h-0.5 mx-auto mb-8" style={{ backgroundColor: `hsl(${colors.accent})` }} />
             <p className="text-muted-foreground text-sm mb-8">
-              Escaneie o QR Code e avalie no Google
+              Sua opinião é muito importante para nós.<br />
+              Escaneie o QR Code e deixe sua avaliação no Google.
             </p>
             <div className="inline-block bg-white p-5 rounded-xl shadow-lg">
               <img
@@ -260,7 +261,8 @@ const LeadSite = () => {
               Fale com {displayName}
             </h2>
             <p className="text-base md:text-lg max-w-md mx-auto mb-10 font-body" style={{ color: `hsl(${colors.primaryForeground} / 0.7)` }}>
-              Entre em contato agora e atendemos você em {lead.city} e região.
+              Atendimento rápido em {lead.city} e região.
+              {lead.niche === "baterias" ? " Levamos a bateria até você com instalação no local e garantia." : ` Entre em contato e atendemos você em ${lead.city}.`}
             </p>
             <a
               href={whatsappLink}
