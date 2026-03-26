@@ -1,4 +1,4 @@
-// Content templates per niche for dynamic site generation
+// Content templates per niche - ALL texts are dynamically generated with city and company name
 import heroSalon from "@/assets/hero-salon.jpg";
 import heroBarbershop from "@/assets/hero-barbershop.jpg";
 import heroDental from "@/assets/hero-dental.jpg";
@@ -30,16 +30,38 @@ export interface NicheContent {
   ctaText: string;
   whatsappMessage: string;
   nameSuffix?: string;
+  galleryLabel: string;
+  galleryHeading: string;
 }
 
-const nicheContentMap: Record<string, NicheContent> = {
+interface NicheTemplate {
+  heroTitle: (city: string) => string;
+  heroSubtitle: (city: string, company: string) => string;
+  heroImage: string;
+  aboutLabel: string;
+  aboutHeading: string;
+  aboutText: (city: string, company: string) => string;
+  servicesLabel: string;
+  servicesHeading: string;
+  services: { title: string; desc: string }[];
+  reviews: { name: string; text: string; rating: number }[];
+  reviewCount: number;
+  footerTagline: (city: string) => string;
+  ctaText: string;
+  whatsappMessage: (company: string) => string;
+  nameSuffix?: string;
+  galleryLabel: string;
+  galleryHeading: string;
+}
+
+const nicheTemplateMap: Record<string, NicheTemplate> = {
   "salão de beleza": {
-    heroTitle: "Especialistas em realçar\nsua beleza natural",
-    heroSubtitle: "Cortes, coloração e tratamentos com técnicas premium e atendimento personalizado.",
+    heroTitle: (city) => `Especialistas em realçar\nsua beleza em ${city}`,
+    heroSubtitle: (city, company) => `${company}: cortes, coloração e tratamentos com técnicas premium em ${city} e região.`,
     heroImage: heroSalon,
     aboutLabel: "Sobre nós",
     aboutHeading: "Beleza com técnica\ne dedicação",
-    aboutText: "Nossa equipe combina anos de experiência com produtos de alta performance para entregar resultados que você vai amar. Cada detalhe é pensado para realçar o que você tem de melhor.",
+    aboutText: (city, company) => `O ${company} é referência em beleza em ${city}. Nossa equipe combina anos de experiência com produtos de alta performance para entregar resultados que você vai amar. Cada detalhe é pensado para realçar o que você tem de melhor. Atendemos ${city} e região com excelência.`,
     servicesLabel: "Nossos serviços",
     servicesHeading: "Feitos para você brilhar",
     services: [
@@ -54,18 +76,20 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Juliana M.", text: "A maquiagem do meu casamento ficou perfeita e durou a noite toda!", rating: 5 },
     ],
     reviewCount: 127,
-    footerTagline: "Beleza, sofisticação e cuidado em cada detalhe.",
+    footerTagline: (city) => `Beleza, sofisticação e cuidado em ${city}.`,
     ctaText: "Agendar agora",
-    whatsappMessage: "Olá! Gostaria de agendar um horário no salão.",
+    whatsappMessage: (company) => `Olá! Gostaria de agendar um horário no ${company}.`,
     nameSuffix: "Hair Studio",
+    galleryLabel: "Nosso salão",
+    galleryHeading: "Conheça nosso espaço",
   },
   "barbearia": {
-    heroTitle: "Cortes precisos e\nbarba impecável",
-    heroSubtitle: "Estilo e atitude com profissionais especializados no cuidado masculino.",
+    heroTitle: (city) => `Cortes precisos e\nbarba impecável em ${city}`,
+    heroSubtitle: (city, company) => `${company}: estilo e atitude com profissionais especializados no cuidado masculino em ${city}.`,
     heroImage: heroBarbershop,
     aboutLabel: "Sobre nós",
     aboutHeading: "Tradição e estilo\nmasculino",
-    aboutText: "Espaço pensado para o homem que valoriza o cuidado pessoal. Equipe especializada em cortes clássicos e contemporâneos, barba modelada e tratamentos exclusivos.",
+    aboutText: (city, company) => `O ${company} é o ponto de referência para o homem que valoriza o cuidado pessoal em ${city}. Equipe especializada em cortes clássicos e contemporâneos, barba modelada e tratamentos exclusivos. Atendemos ${city} e região.`,
     servicesLabel: "Nossos serviços",
     servicesHeading: "Precisão em cada detalhe",
     services: [
@@ -80,18 +104,20 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "André P.", text: "Atendimento diferenciado, saio sempre satisfeito.", rating: 5 },
     ],
     reviewCount: 89,
-    footerTagline: "Estilo, precisão e atitude masculina.",
+    footerTagline: (city) => `Estilo, precisão e atitude masculina em ${city}.`,
     ctaText: "Agendar horário",
-    whatsappMessage: "Olá! Quero agendar um corte.",
+    whatsappMessage: (company) => `Olá! Quero agendar um corte no ${company}.`,
     nameSuffix: "Barber Shop",
+    galleryLabel: "Nossa barbearia",
+    galleryHeading: "Conheça nosso espaço",
   },
   "estética": {
-    heroTitle: "Harmonização e estética\ncom resultados reais",
-    heroSubtitle: "Procedimentos estéticos avançados com segurança, técnica e naturalidade.",
+    heroTitle: (city) => `Harmonização e estética\ncom resultados reais em ${city}`,
+    heroSubtitle: (city, company) => `${company}: procedimentos estéticos avançados com segurança e naturalidade em ${city}.`,
     heroImage: heroAesthetics,
     aboutLabel: "Sobre nós",
     aboutHeading: "Estética avançada\ncom responsabilidade",
-    aboutText: "Utilizamos as técnicas mais modernas do mercado com equipamentos de ponta. Cada procedimento é planejado para realçar sua beleza de forma natural e segura.",
+    aboutText: (city, company) => `A ${company} utiliza as técnicas mais modernas com equipamentos de ponta em ${city}. Cada procedimento é planejado para realçar sua beleza de forma natural e segura. Referência em estética em ${city} e região.`,
     servicesLabel: "Procedimentos",
     servicesHeading: "Tratamentos que transformam",
     services: [
@@ -106,18 +132,20 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Priscila D.", text: "Ambiente impecável e resultados incríveis.", rating: 5 },
     ],
     reviewCount: 78,
-    footerTagline: "Beleza natural com técnica e segurança.",
+    footerTagline: (city) => `Beleza natural com técnica e segurança em ${city}.`,
     ctaText: "Agendar avaliação",
-    whatsappMessage: "Olá! Gostaria de agendar uma avaliação estética.",
+    whatsappMessage: (company) => `Olá! Gostaria de agendar uma avaliação na ${company}.`,
     nameSuffix: "Estética Avançada",
+    galleryLabel: "Nossa clínica",
+    galleryHeading: "Conheça nossa estrutura",
   },
   "clínica odontológica": {
-    heroTitle: "Seu sorriso merece\no melhor tratamento",
-    heroSubtitle: "Odontologia moderna com tecnologia de ponta e atendimento humanizado.",
+    heroTitle: (city) => `Seu sorriso merece\no melhor tratamento em ${city}`,
+    heroSubtitle: (city, company) => `${company}: odontologia moderna com tecnologia de ponta em ${city} e região.`,
     heroImage: heroDental,
     aboutLabel: "Sobre nós",
     aboutHeading: "Cuidado dental\ncom excelência",
-    aboutText: "Tratamentos completos com equipamentos de última geração. Cada procedimento é planejado para garantir conforto, segurança e resultados naturais.",
+    aboutText: (city, company) => `A ${company} oferece tratamentos completos com equipamentos de última geração em ${city}. Cada procedimento é planejado para garantir conforto, segurança e resultados naturais. Referência em odontologia em ${city}.`,
     servicesLabel: "Tratamentos",
     servicesHeading: "Cuidados completos para seu sorriso",
     services: [
@@ -132,18 +160,20 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Patrícia A.", text: "Meus implantes ficaram perfeitos. Recomendo!", rating: 5 },
     ],
     reviewCount: 203,
-    footerTagline: "Saúde e beleza para o seu sorriso.",
+    footerTagline: (city) => `Saúde e beleza para o seu sorriso em ${city}.`,
     ctaText: "Agendar consulta",
-    whatsappMessage: "Olá! Gostaria de agendar uma consulta.",
+    whatsappMessage: (company) => `Olá! Gostaria de agendar uma consulta na ${company}.`,
     nameSuffix: "Odontologia",
+    galleryLabel: "Nossa clínica",
+    galleryHeading: "Estrutura moderna e equipada",
   },
   "fisioterapia": {
-    heroTitle: "Recuperação e bem-estar\ncom tratamento especializado",
-    heroSubtitle: "Fisioterapia personalizada para reabilitação, alívio de dores e qualidade de vida.",
+    heroTitle: (city) => `Recuperação e bem-estar\nespecializado em ${city}`,
+    heroSubtitle: (city, company) => `${company}: fisioterapia personalizada para reabilitação e qualidade de vida em ${city}.`,
     heroImage: heroPhysiotherapy,
     aboutLabel: "Sobre nós",
     aboutHeading: "Cuidado especializado\npara seu corpo",
-    aboutText: "Profissionais qualificados com abordagem individualizada. Cada sessão é planejada para acelerar sua recuperação e melhorar sua qualidade de vida.",
+    aboutText: (city, company) => `A ${company} em ${city} conta com profissionais qualificados e abordagem individualizada. Cada sessão é planejada para acelerar sua recuperação e melhorar sua qualidade de vida. Atendemos ${city} e região.`,
     servicesLabel: "Especialidades",
     servicesHeading: "Tratamentos especializados",
     services: [
@@ -158,18 +188,20 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Marcos V.", text: "Atendimento personalizado e resultados rápidos.", rating: 5 },
     ],
     reviewCount: 64,
-    footerTagline: "Movimento, recuperação e qualidade de vida.",
+    footerTagline: (city) => `Movimento, recuperação e qualidade de vida em ${city}.`,
     ctaText: "Agendar sessão",
-    whatsappMessage: "Olá! Gostaria de agendar uma sessão de fisioterapia.",
+    whatsappMessage: (company) => `Olá! Gostaria de agendar uma sessão na ${company}.`,
     nameSuffix: "Fisioterapia",
+    galleryLabel: "Nossa clínica",
+    galleryHeading: "Espaço de reabilitação",
   },
   "pet shop": {
-    heroTitle: "Cuidado completo\npara seu pet",
-    heroSubtitle: "Banho, tosa, veterinário e tudo que seu animal de estimação precisa.",
+    heroTitle: (city) => `Cuidado completo\npara seu pet em ${city}`,
+    heroSubtitle: (city, company) => `${company}: banho, tosa, veterinário e tudo que seu animal precisa em ${city}.`,
     heroImage: heroPetshop,
     aboutLabel: "Sobre nós",
     aboutHeading: "Amor e cuidado\ncom seu melhor amigo",
-    aboutText: "Tratamos cada pet como se fosse nosso. Equipe apaixonada por animais com estrutura completa para banho, tosa, consultas veterinárias e produtos de qualidade.",
+    aboutText: (city, company) => `O ${company} em ${city} trata cada pet como se fosse nosso. Equipe apaixonada por animais com estrutura completa para banho, tosa, consultas veterinárias e produtos de qualidade. Referência em cuidado animal em ${city}.`,
     servicesLabel: "Nossos serviços",
     servicesHeading: "Tudo para o seu pet",
     services: [
@@ -184,18 +216,20 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Tatiana S.", text: "A veterinária é excelente. Cuida do meu gato com muito carinho.", rating: 5 },
     ],
     reviewCount: 112,
-    footerTagline: "Carinho e cuidado para quem você mais ama.",
+    footerTagline: (city) => `Carinho e cuidado para quem você mais ama em ${city}.`,
     ctaText: "Agendar banho",
-    whatsappMessage: "Olá! Gostaria de agendar um banho para meu pet.",
+    whatsappMessage: (company) => `Olá! Gostaria de agendar um banho no ${company}.`,
     nameSuffix: "Pet Shop",
+    galleryLabel: "Nosso pet shop",
+    galleryHeading: "Conheça nosso espaço",
   },
   "oficina mecânica": {
-    heroTitle: "Mecânica de confiança\ncom garantia de serviço",
-    heroSubtitle: "Diagnóstico preciso, manutenção preventiva e reparos com peças de qualidade.",
+    heroTitle: (city) => `Mecânica de confiança\nem ${city}`,
+    heroSubtitle: (city, company) => `${company}: diagnóstico preciso, manutenção preventiva e reparos com garantia em ${city}.`,
     heroImage: heroMechanic,
     aboutLabel: "Sobre nós",
     aboutHeading: "Confiança e qualidade\nno seu veículo",
-    aboutText: "Mecânicos experientes com equipamentos de diagnóstico moderno. Trabalhamos com transparência, mostrando cada etapa do serviço para sua total confiança.",
+    aboutText: (city, company) => `A ${company} em ${city} conta com mecânicos experientes e equipamentos de diagnóstico moderno. Trabalhamos com transparência, mostrando cada etapa do serviço. Referência em mecânica automotiva em ${city} e região.`,
     servicesLabel: "Nossos serviços",
     servicesHeading: "Serviços automotivos completos",
     services: [
@@ -210,24 +244,26 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Marcelo F.", text: "Consertaram um problema que outras oficinas não acharam.", rating: 5 },
     ],
     reviewCount: 76,
-    footerTagline: "Confiança e qualidade no cuidado do seu veículo.",
+    footerTagline: (city) => `Confiança e qualidade no cuidado do seu veículo em ${city}.`,
     ctaText: "Agendar serviço",
-    whatsappMessage: "Olá! Gostaria de agendar um serviço para meu veículo.",
+    whatsappMessage: (company) => `Olá! Gostaria de agendar um serviço na ${company}.`,
     nameSuffix: "Auto Center",
+    galleryLabel: "Nossa oficina",
+    galleryHeading: "Estrutura profissional",
   },
   "baterias": {
-    heroTitle: "Baterias automotivas\ncom entrega e instalação",
-    heroSubtitle: "As melhores marcas com garantia de fábrica. Entrega rápida e instalação no local.",
+    heroTitle: (city) => `Baterias automotivas\ncom entrega rápida em ${city}`,
+    heroSubtitle: (city, company) => `${company}: as melhores marcas com garantia de fábrica e instalação no local em ${city}.`,
     heroImage: heroBatteries,
     aboutLabel: "Sobre nós",
     aboutHeading: "Especialistas em\nbaterias automotivas",
-    aboutText: "Trabalhamos com as melhores marcas do mercado: Moura, Heliar, Zetta e ACDelco. Entrega e instalação rápida para você não ficar na mão.",
+    aboutText: (city, company) => `A ${company} em ${city} trabalha com as melhores marcas do mercado: Moura, Heliar, Zetta e ACDelco. Entrega e instalação rápida para você não ficar na mão. Socorro 24h em ${city} e região.`,
     servicesLabel: "Nossos serviços",
     servicesHeading: "Soluções em baterias",
     services: [
       { title: "Baterias para Carros", desc: "Baterias novas para todos os modelos com garantia de fábrica." },
       { title: "Baterias para Motos", desc: "Baterias específicas para motos com instalação inclusa." },
-      { title: "Carga e Teste", desc: "Teste de bateria gratuito e serviço de carga quando possível." },
+      { title: "Socorro 24h", desc: "Entrega e instalação emergencial a qualquer hora do dia." },
       { title: "Entrega Expressa", desc: "Entrega e instalação no local em até 40 minutos." },
     ],
     reviews: [
@@ -236,18 +272,20 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Fábio L.", text: "Atendimento rápido, resolveram meu problema na hora.", rating: 5 },
     ],
     reviewCount: 58,
-    footerTagline: "Energia e confiança para o seu veículo.",
+    footerTagline: (city) => `Energia e confiança para o seu veículo em ${city}.`,
     ctaText: "Pedir orçamento",
-    whatsappMessage: "Olá! Preciso de uma bateria. Qual o preço?",
+    whatsappMessage: (company) => `Olá! Preciso de uma bateria. Sou de ${company}, qual o preço?`,
     nameSuffix: "Baterias",
+    galleryLabel: "Nossa loja",
+    galleryHeading: "Estoque e estrutura",
   },
   "restaurante": {
-    heroTitle: "Sabores autênticos\ne ingredientes frescos",
-    heroSubtitle: "Pratos preparados com carinho, ingredientes selecionados e um ambiente acolhedor.",
+    heroTitle: (city) => `Sabores autênticos\nem ${city}`,
+    heroSubtitle: (city, company) => `${company}: pratos preparados com carinho e ingredientes selecionados em ${city}.`,
     heroImage: heroRestaurant,
     aboutLabel: "Sobre nós",
     aboutHeading: "Gastronomia feita\ncom paixão",
-    aboutText: "Cada prato é preparado com ingredientes frescos, combinando tradição e criatividade. Nosso ambiente foi pensado para proporcionar momentos especiais em cada refeição.",
+    aboutText: (city, company) => `O ${company} em ${city} prepara cada prato com ingredientes frescos, combinando tradição e criatividade. Nosso ambiente foi pensado para proporcionar momentos especiais. Venha conhecer o melhor da gastronomia em ${city}.`,
     servicesLabel: "Nosso cardápio",
     servicesHeading: "Pratos que encantam",
     services: [
@@ -262,17 +300,19 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Beatriz L.", text: "Melhor restaurante da região! Voltarei com certeza.", rating: 5 },
     ],
     reviewCount: 156,
-    footerTagline: "Sabor, tradição e momentos especiais.",
+    footerTagline: (city) => `Sabor, tradição e momentos especiais em ${city}.`,
     ctaText: "Fazer reserva",
-    whatsappMessage: "Olá! Gostaria de fazer uma reserva.",
+    whatsappMessage: (company) => `Olá! Gostaria de fazer uma reserva no ${company}.`,
+    galleryLabel: "Nosso restaurante",
+    galleryHeading: "Ambiente e pratos",
   },
   "hamburgueria": {
-    heroTitle: "Hambúrgueres artesanais\nde verdade",
-    heroSubtitle: "Blend exclusivo, pão artesanal e ingredientes selecionados. Sabor que conquista.",
+    heroTitle: (city) => `Hambúrgueres artesanais\nde verdade em ${city}`,
+    heroSubtitle: (city, company) => `${company}: blend exclusivo, pão artesanal e ingredientes selecionados em ${city}.`,
     heroImage: heroRestaurant,
     aboutLabel: "Sobre nós",
     aboutHeading: "Hambúrguer feito\ncom paixão",
-    aboutText: "Nosso blend é preparado diariamente com carnes nobres. Cada hambúrguer é montado na hora com ingredientes frescos e combinações que surpreendem.",
+    aboutText: (city, company) => `O ${company} em ${city} prepara seu blend diariamente com carnes nobres. Cada hambúrguer é montado na hora com ingredientes frescos. A melhor hamburgueria de ${city}!`,
     servicesLabel: "Cardápio",
     servicesHeading: "Nossos hambúrgueres",
     services: [
@@ -287,17 +327,19 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Diego S.", text: "Delivery rápido e hambúrguer chegou quente e perfeito.", rating: 5 },
     ],
     reviewCount: 134,
-    footerTagline: "Hambúrgueres artesanais que conquistam.",
+    footerTagline: (city) => `Hambúrgueres artesanais que conquistam ${city}.`,
     ctaText: "Fazer pedido",
-    whatsappMessage: "Olá! Quero fazer um pedido.",
+    whatsappMessage: (company) => `Olá! Quero fazer um pedido no ${company}.`,
+    galleryLabel: "Nossa hamburgueria",
+    galleryHeading: "Nossos hambúrgueres",
   },
   "marmitaria": {
-    heroTitle: "Comida caseira de qualidade\ntodo dia na sua mesa",
-    heroSubtitle: "Marmitas frescas, saborosas e com porções generosas. Entrega rápida.",
+    heroTitle: (city) => `Comida caseira de qualidade\ntodo dia em ${city}`,
+    heroSubtitle: (city, company) => `${company}: marmitas frescas, saborosas e com porções generosas em ${city}. Entrega rápida.`,
     heroImage: heroMarmitaria,
     aboutLabel: "Sobre nós",
     aboutHeading: "Comida de verdade,\nfeita com carinho",
-    aboutText: "Preparamos refeições completas todos os dias com ingredientes frescos e tempero caseiro. Porções generosas e opções variadas para seu almoço e jantar.",
+    aboutText: (city, company) => `O ${company} em ${city} prepara refeições completas todos os dias com ingredientes frescos e tempero caseiro. Porções generosas e opções variadas para seu almoço e jantar. Entrega rápida em ${city}.`,
     servicesLabel: "Cardápio",
     servicesHeading: "Nossas opções",
     services: [
@@ -312,17 +354,19 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Carla P.", text: "As marmitas fitness são ótimas. Sabor sem culpa!", rating: 5 },
     ],
     reviewCount: 87,
-    footerTagline: "Comida caseira, fresca e com sabor de verdade.",
+    footerTagline: (city) => `Comida caseira, fresca e com sabor de verdade em ${city}.`,
     ctaText: "Fazer pedido",
-    whatsappMessage: "Olá! Gostaria de fazer um pedido de marmita.",
+    whatsappMessage: (company) => `Olá! Gostaria de fazer um pedido no ${company}.`,
+    galleryLabel: "Nossa cozinha",
+    galleryHeading: "Comida de verdade",
   },
   "academia": {
-    heroTitle: "Treinos que transformam\nseu corpo e mente",
-    heroSubtitle: "Equipamentos modernos, profissionais qualificados e ambiente motivador.",
+    heroTitle: (city) => `Treinos que transformam\nseu corpo em ${city}`,
+    heroSubtitle: (city, company) => `${company}: equipamentos modernos e profissionais qualificados em ${city}.`,
     heroImage: heroGym,
     aboutLabel: "Sobre nós",
     aboutHeading: "Saúde e resultado\ncom acompanhamento",
-    aboutText: "Estrutura completa com equipamentos de última geração, profissionais qualificados e ambiente motivador para você alcançar seus objetivos.",
+    aboutText: (city, company) => `A ${company} em ${city} oferece estrutura completa com equipamentos de última geração e profissionais qualificados. Ambiente motivador para você alcançar seus objetivos. A melhor academia de ${city}!`,
     servicesLabel: "Modalidades",
     servicesHeading: "Treinos que transformam",
     services: [
@@ -337,17 +381,19 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Felipe G.", text: "Equipamentos top e ambiente super motivador.", rating: 5 },
     ],
     reviewCount: 94,
-    footerTagline: "Saúde, movimento e superação.",
+    footerTagline: (city) => `Saúde, movimento e superação em ${city}.`,
     ctaText: "Agendar aula experimental",
-    whatsappMessage: "Olá! Quero agendar uma aula experimental.",
+    whatsappMessage: (company) => `Olá! Quero agendar uma aula experimental na ${company}.`,
+    galleryLabel: "Nossa academia",
+    galleryHeading: "Estrutura completa",
   },
   "imobiliária": {
-    heroTitle: "O imóvel ideal\nestá aqui",
-    heroSubtitle: "Compra, venda e locação com atendimento personalizado e consultoria especializada.",
+    heroTitle: (city) => `O imóvel ideal\nem ${city} está aqui`,
+    heroSubtitle: (city, company) => `${company}: compra, venda e locação com consultoria especializada em ${city} e região.`,
     heroImage: heroRealestate,
     aboutLabel: "Sobre nós",
     aboutHeading: "Realizando sonhos\ncom segurança",
-    aboutText: "Atuamos no mercado imobiliário com seriedade e transparência. Nossa equipe conhece cada detalhe da região para encontrar o imóvel perfeito para você.",
+    aboutText: (city, company) => `A ${company} atua no mercado imobiliário de ${city} com seriedade e transparência. Nossa equipe conhece cada detalhe da região para encontrar o imóvel perfeito para você em ${city}.`,
     servicesLabel: "Serviços",
     servicesHeading: "Como podemos ajudar",
     services: [
@@ -362,18 +408,20 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Luciana R.", text: "Aluguei meu imóvel em menos de uma semana. Excelente!", rating: 5 },
     ],
     reviewCount: 145,
-    footerTagline: "Seu próximo imóvel começa aqui.",
+    footerTagline: (city) => `Seu próximo imóvel em ${city} começa aqui.`,
     ctaText: "Falar com corretor",
-    whatsappMessage: "Olá! Tenho interesse em imóveis disponíveis.",
+    whatsappMessage: (company) => `Olá! Tenho interesse em imóveis da ${company}.`,
     nameSuffix: "Imóveis",
+    galleryLabel: "Nossos imóveis",
+    galleryHeading: "Imóveis disponíveis",
   },
   "contabilidade": {
-    heroTitle: "Contabilidade que\nfaz seu negócio crescer",
-    heroSubtitle: "Gestão contábil, fiscal e trabalhista com atendimento próximo e personalizado.",
+    heroTitle: (city) => `Contabilidade que faz\nseu negócio crescer em ${city}`,
+    heroSubtitle: (city, company) => `${company}: gestão contábil, fiscal e trabalhista com atendimento personalizado em ${city}.`,
     heroImage: heroAccounting,
     aboutLabel: "Sobre nós",
     aboutHeading: "Parceiros do seu\ncrescimento",
-    aboutText: "Cuidamos da burocracia para você focar no que importa: seu negócio. Atendimento personalizado com soluções sob medida para cada tipo de empresa.",
+    aboutText: (city, company) => `A ${company} em ${city} cuida da burocracia para você focar no que importa: seu negócio. Atendimento personalizado com soluções sob medida. Referência em contabilidade em ${city} e região.`,
     servicesLabel: "Serviços",
     servicesHeading: "Soluções contábeis completas",
     services: [
@@ -388,21 +436,23 @@ const nicheContentMap: Record<string, NicheContent> = {
       { name: "Pedro H.", text: "Economizei muito com o planejamento tributário deles.", rating: 5 },
     ],
     reviewCount: 92,
-    footerTagline: "Contabilidade inteligente para seu negócio.",
+    footerTagline: (city) => `Contabilidade inteligente para seu negócio em ${city}.`,
     ctaText: "Falar com contador",
-    whatsappMessage: "Olá! Gostaria de informações sobre serviços contábeis.",
+    whatsappMessage: (company) => `Olá! Gostaria de informações sobre serviços da ${company}.`,
     nameSuffix: "Contabilidade",
+    galleryLabel: "Nosso escritório",
+    galleryHeading: "Ambiente profissional",
   },
 };
 
-// Default fallback for unknown niches
-const defaultContent: NicheContent = {
-  heroTitle: "Excelência e qualidade\nno que fazemos",
-  heroSubtitle: "Atendimento personalizado com profissionais qualificados e dedicados ao seu bem-estar.",
+// Default fallback template for unknown niches - also dynamic
+const defaultTemplate: NicheTemplate = {
+  heroTitle: (city) => `Excelência e qualidade\nem ${city}`,
+  heroSubtitle: (city, company) => `${company}: atendimento personalizado com profissionais qualificados em ${city}.`,
   heroImage: heroDefault,
   aboutLabel: "Sobre nós",
   aboutHeading: "Tradição e\ninovação juntas",
-  aboutText: "Com anos de experiência, nossa equipe é referência em qualidade e atendimento. Cada cliente recebe atenção individualizada para a melhor experiência possível.",
+  aboutText: (city, company) => `O ${company} é referência em qualidade em ${city}. Cada cliente recebe atenção individualizada para a melhor experiência possível. Atendemos ${city} e região.`,
   servicesLabel: "Nossos serviços",
   servicesHeading: "O que oferecemos",
   services: [
@@ -413,18 +463,46 @@ const defaultContent: NicheContent = {
   ],
   reviews: [],
   reviewCount: 0,
-  footerTagline: "Qualidade e dedicação em cada detalhe.",
+  footerTagline: (city) => `Qualidade e dedicação em ${city}.`,
   ctaText: "Falar no WhatsApp",
-  whatsappMessage: "Olá! Gostaria de mais informações.",
+  whatsappMessage: (company) => `Olá! Gostaria de mais informações sobre o ${company}.`,
+  galleryLabel: "Nosso espaço",
+  galleryHeading: "Conheça nossa estrutura",
 };
 
-export function getNicheContent(niche: string): NicheContent {
+function findTemplate(niche: string): NicheTemplate {
   const key = niche.toLowerCase().trim();
-  if (nicheContentMap[key]) return nicheContentMap[key];
-  for (const [k, v] of Object.entries(nicheContentMap)) {
+  if (nicheTemplateMap[key]) return nicheTemplateMap[key];
+  for (const [k, v] of Object.entries(nicheTemplateMap)) {
     if (key.includes(k) || k.includes(key)) return v;
   }
-  return defaultContent;
+  return defaultTemplate;
+}
+
+export function getNicheContent(niche: string, city: string = "", companyName: string = ""): NicheContent {
+  const template = findTemplate(niche);
+  const cityName = city || "sua cidade";
+  const company = companyName || "nosso estabelecimento";
+
+  return {
+    heroTitle: template.heroTitle(cityName),
+    heroSubtitle: template.heroSubtitle(cityName, company),
+    heroImage: template.heroImage,
+    aboutLabel: template.aboutLabel,
+    aboutHeading: template.aboutHeading,
+    aboutText: template.aboutText(cityName, company),
+    servicesLabel: template.servicesLabel,
+    servicesHeading: template.servicesHeading,
+    services: template.services,
+    reviews: template.reviews,
+    reviewCount: template.reviewCount,
+    footerTagline: template.footerTagline(cityName),
+    ctaText: template.ctaText,
+    whatsappMessage: template.whatsappMessage(company),
+    nameSuffix: template.nameSuffix,
+    galleryLabel: template.galleryLabel,
+    galleryHeading: template.galleryHeading,
+  };
 }
 
 // Professional name transformation
@@ -451,14 +529,12 @@ export function professionalizeName(rawName: string, niche: string): string {
   const name = rawName.trim();
   const lower = name.toLowerCase();
 
-  // If the name already has a professional suffix, keep it
   if (professionalSuffixes.some((s) => lower.includes(s))) {
     return name;
   }
 
   const nicheKey = niche.toLowerCase().trim();
 
-  // Find matching pattern
   for (const [k, transform] of Object.entries(nicheNamePatterns)) {
     if (nicheKey.includes(k) || k.includes(nicheKey)) {
       return transform(name);
@@ -468,4 +544,4 @@ export function professionalizeName(rawName: string, niche: string): string {
   return name;
 }
 
-export const availableNiches = Object.keys(nicheContentMap);
+export const availableNiches = Object.keys(nicheTemplateMap);
