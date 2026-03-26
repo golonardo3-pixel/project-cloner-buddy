@@ -101,32 +101,33 @@ const LeadSite = () => {
       <main className="pt-[52px]">
         {/* Hero */}
         <section className="relative min-h-[80vh] flex items-end overflow-hidden">
-          {/* Video background with image fallback */}
-          {content.heroVideo ? (
+          {/* Fallback image - always behind video */}
+          <img
+            src={content.heroImage}
+            alt={`${displayName} - ${lead.niche} em ${lead.city}`}
+            className="absolute inset-0 w-full h-full object-cover z-0"
+            width={1280}
+            height={832}
+          />
+          {/* Video background */}
+          {content.heroVideo && (
             <video
               autoPlay
               muted
               loop
               playsInline
+              preload="auto"
               poster={content.heroImage}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover z-[1]"
               onError={(e) => {
-                // Hide video on error, fallback image will show through poster
                 (e.target as HTMLVideoElement).style.display = 'none';
               }}
             >
               <source src={content.heroVideo} type="video/mp4" />
             </video>
-          ) : null}
-          {/* Fallback image (always rendered behind video) */}
-          <img
-            src={content.heroImage}
-            alt={`${displayName} - ${lead.niche} em ${lead.city}`}
-            className={`absolute inset-0 w-full h-full object-cover ${content.heroVideo ? '-z-10' : ''}`}
-            width={1280}
-            height={832}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+          )}
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
           <div className="relative z-10 px-5 pb-16 md:pb-24 max-w-5xl mx-auto w-full">
             <div className="w-16 h-0.5 mb-6" style={{ backgroundColor: `hsl(${colors.accent})` }} />
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mb-4 whitespace-pre-line" style={{ color: `hsl(${colors.primaryForeground})` }}>
