@@ -101,37 +101,13 @@ const LeadSite = () => {
       <main className="pt-[52px]">
         {/* Hero */}
         <section className="relative min-h-[80vh] flex items-end overflow-hidden">
-          {/* Video or image background - only one renders */}
-          {content.heroVideo ? (
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              className="absolute inset-0 w-full h-full object-cover z-0"
-              onError={(e) => {
-                // On video failure, replace with fallback image
-                const video = e.target as HTMLVideoElement;
-                const img = document.createElement('img');
-                img.src = content.heroImage;
-                img.alt = `${displayName} - ${lead.niche} em ${lead.city}`;
-                img.className = 'absolute inset-0 w-full h-full object-cover z-0';
-                video.parentElement?.insertBefore(img, video);
-                video.remove();
-              }}
-            >
-              <source src={content.heroVideo} type="video/mp4" />
-            </video>
-          ) : (
-            <img
-              src={content.heroImage}
-              alt={`${displayName} - ${lead.niche} em ${lead.city}`}
-              className="absolute inset-0 w-full h-full object-cover z-0"
-              width={1280}
-              height={832}
-            />
-          )}
+          <img
+            src={content.heroImage}
+            alt={`${displayName} - ${lead.niche} em ${lead.city}`}
+            className="absolute inset-0 w-full h-full object-cover z-0"
+            width={1280}
+            height={832}
+          />
           {/* Dark overlay */}
           <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
           <div className="relative z-[2] px-5 pb-16 md:pb-24 max-w-5xl mx-auto w-full">
@@ -274,13 +250,16 @@ const LeadSite = () => {
             <div className="rounded-lg overflow-hidden mb-8 shadow-md">
               <iframe
                 title={`Localização de ${displayName}`}
-                src={mapsEmbedUrl}
+                src={`https://maps.google.com/maps?q=${mapsQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                 width="100%"
                 height="400"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
+                onError={(e) => {
+                  (e.currentTarget.closest('section') as HTMLElement)?.style.setProperty('display', 'none');
+                }}
               />
             </div>
             <div className="text-center">
