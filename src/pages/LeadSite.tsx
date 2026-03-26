@@ -128,7 +128,7 @@ const LeadSite = () => {
           )}
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-          <div className="relative z-10 px-5 pb-16 md:pb-24 max-w-5xl mx-auto w-full">
+          <div className="relative z-[3] px-5 pb-16 md:pb-24 max-w-5xl mx-auto w-full">
             <div className="w-16 h-0.5 mb-6" style={{ backgroundColor: `hsl(${colors.accent})` }} />
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mb-4 whitespace-pre-line" style={{ color: `hsl(${colors.primaryForeground})` }}>
               {content.heroTitle}
