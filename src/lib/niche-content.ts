@@ -506,6 +506,7 @@ export function getNicheContent(niche: string, city: string = "", companyName: s
     heroTitle: template.heroTitle(cityName),
     heroSubtitle: template.heroSubtitle(cityName, company),
     heroImage: template.heroImage,
+    heroVideo: template.heroVideo,
     aboutLabel: template.aboutLabel,
     aboutHeading: template.aboutHeading,
     aboutText: template.aboutText(cityName, company),
