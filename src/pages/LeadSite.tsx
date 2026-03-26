@@ -42,8 +42,8 @@ const LeadSite = () => {
     );
   }
 
-  const content = getNicheContent(lead.niche);
   const displayName = professionalizeName(lead.company_name, lead.niche);
+  const content = getNicheContent(lead.niche, lead.city, displayName);
   const gallery = getGalleryImages(lead.niche);
   const colors = getNicheColors(lead.niche);
   const whatsappLink = `https://wa.me/${lead.phone}?text=${encodeURIComponent(content.whatsappMessage)}`;
@@ -133,8 +133,8 @@ const LeadSite = () => {
         {/* Gallery */}
         <LeadSiteGallery
           images={gallery}
-          label="Nosso espaço"
-          heading="Conheça nossa estrutura"
+          label={content.galleryLabel}
+          heading={content.galleryHeading}
         />
 
         {/* Services */}
@@ -257,10 +257,10 @@ const LeadSite = () => {
         <section className="py-20" style={{ backgroundColor: `hsl(${colors.primary})` }}>
           <div className="px-5 md:px-8 lg:px-16 max-w-5xl mx-auto text-center">
             <h2 className="font-display text-3xl md:text-4xl font-semibold mb-5" style={{ color: `hsl(${colors.primaryForeground})` }}>
-              Pronto para começar?
+              Fale com {displayName}
             </h2>
             <p className="text-base md:text-lg max-w-md mx-auto mb-10 font-body" style={{ color: `hsl(${colors.primaryForeground} / 0.7)` }}>
-              Entre em contato agora mesmo e agende seu horário.
+              Entre em contato agora e atendemos você em {lead.city} e região.
             </p>
             <a
               href={whatsappLink}
