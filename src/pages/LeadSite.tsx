@@ -100,11 +100,29 @@ const LeadSite = () => {
 
       <main className="pt-[52px]">
         {/* Hero */}
-        <section className="relative min-h-[80vh] flex items-end">
+        <section className="relative min-h-[80vh] flex items-end overflow-hidden">
+          {/* Video background with image fallback */}
+          {content.heroVideo ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster={content.heroImage}
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                // Hide video on error, fallback image will show through poster
+                (e.target as HTMLVideoElement).style.display = 'none';
+              }}
+            >
+              <source src={content.heroVideo} type="video/mp4" />
+            </video>
+          ) : null}
+          {/* Fallback image (always rendered behind video) */}
           <img
             src={content.heroImage}
             alt={`${displayName} - ${lead.niche} em ${lead.city}`}
-            className="absolute inset-0 w-full h-full object-cover"
+            className={`absolute inset-0 w-full h-full object-cover ${content.heroVideo ? '-z-10' : ''}`}
             width={1280}
             height={832}
           />
