@@ -3,8 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getNicheContent, professionalizeName } from "@/lib/niche-content";
 import { getGalleryImages, getNicheColors } from "@/lib/gallery-images";
-import { MessageCircle, Star, MapPin, Phone, Clock, ExternalLink } from "lucide-react";
+import { MessageCircle, Star, MapPin, Phone, Clock, ExternalLink, Instagram } from "lucide-react";
 import LeadSiteGallery from "@/components/LeadSiteGallery";
+import LeadSiteContactForm from "@/components/LeadSiteContactForm";
 
 const LeadSite = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -18,7 +19,7 @@ const LeadSite = () => {
         .eq("slug", slug)
         .single();
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!slug,
   });
@@ -44,13 +45,26 @@ const LeadSite = () => {
 
   const displayName = professionalizeName(lead.company_name, lead.niche);
   const content = getNicheContent(lead.niche, lead.city, displayName);
-  const gallery = getGalleryImages(lead.niche);
   const colors = getNicheColors(lead.niche);
+
+  // Get uploaded photos from storage
+  const gallery = getGalleryImages(lead.niche);
+  
   const whatsappLink = `https://wa.me/${lead.phone}?text=${encodeURIComponent(content.whatsappMessage)}`;
+  
+  // Use Google Maps URL from lead if available, otherwise generate
+  const hasGoogleMapsUrl = lead.google_maps_url;
   const mapsQuery = encodeURIComponent(`${displayName} ${lead.city}`);
-  const mapsEmbedUrl = `https://www.google.com/maps?q=${mapsQuery}&output=embed`;
-  const mapsLink = `https://www.google.com/maps/search/${mapsQuery}`;
+  const mapsEmbedUrl = hasGoogleMapsUrl
+    ? `https://www.google.com/maps?q=${encodeURIComponent(lead.google_maps_url)}&output=embed`
+    : `https://www.google.com/maps?q=${mapsQuery}&output=embed`;
+  const mapsLink = hasGoogleMapsUrl || `https://www.google.com/maps/search/${mapsQuery}`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(mapsLink)}`;
+
+  // Use custom services if provided
+  const displayServices = lead.services_list && lead.services_list.length > 0
+    ? lead.services_list.map((s: string) => ({ title: s, desc: `Serviço profissional de qualidade em ${lead.city}. Chame no WhatsApp para saber mais.` }))
+    : content.services;
 
   // Dynamic niche color CSS variables
   const nicheStyle = {
@@ -104,19 +118,25 @@ const LeadSite = () => {
               <MapPin className="w-4 h-4" style={{ color: `hsl(${colors.accent})` }} />
               <span className="text-white/80 text-sm font-medium">{lead.city}</span>
             </div>
-            <p className="text-white/75 text-base md:text-lg max-w-md mb-10 font-body">
+            <p className="text-white/75 text-base md:text-lg max-w-md mb-6 font-body">
               {content.heroSubtitle}
             </p>
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold rounded transition-all hover:brightness-110 shadow-lg"
-              style={{ backgroundColor: `hsl(${colors.accent})`, color: `hsl(${colors.primary})` }}
-            >
-              <MessageCircle className="w-5 h-5" />
-              Agendar agora
-            </a>
+            {/* Urgency badge */}
+            <div className="inline-block px-4 py-2 rounded-full mb-8 text-sm font-semibold" style={{ backgroundColor: `hsl(${colors.accent} / 0.2)`, color: `hsl(${colors.accent})` }}>
+              ⚡ Atendimento hoje – vagas limitadas
+            </div>
+            <div>
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold rounded transition-all hover:brightness-110 shadow-lg"
+                style={{ backgroundColor: "#25D366", color: "#fff" }}
+              >
+                <MessageCircle className="w-5 h-5" />
+                Chamar no WhatsApp agora
+              </a>
+            </div>
           </div>
         </section>
 
@@ -126,7 +146,9 @@ const LeadSite = () => {
             <p className="uppercase text-xs tracking-[0.2em] font-medium mb-3" style={{ color: `hsl(${colors.accent})` }}>{content.aboutLabel}</p>
             <h2 className="salon-heading mb-5 whitespace-pre-line">{content.aboutHeading}</h2>
             <div className="w-16 h-0.5 mx-auto mb-8" style={{ backgroundColor: `hsl(${colors.accent})` }} />
-            <p className="text-muted-foreground text-base md:text-lg leading-relaxed">{content.aboutText}</p>
+            <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+              {lead.description || content.aboutText}
+            </p>
           </div>
         </section>
 
@@ -146,7 +168,7 @@ const LeadSite = () => {
               <div className="w-16 h-0.5 mx-auto" style={{ backgroundColor: `hsl(${colors.accent})` }} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {content.services.map((s) => (
+              {displayServices.map((s: { title: string; desc: string }) => (
                 <div key={s.title} className="bg-background rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
                   <h3 className="font-display text-xl font-semibold mb-3 text-foreground">{s.title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{s.desc}</p>
@@ -196,8 +218,28 @@ const LeadSite = () => {
           )}
         </section>
 
-        {/* Google Maps */}
+        {/* Contact Form */}
         <section className="py-20" style={{ backgroundColor: `hsl(${colors.secondary})` }}>
+          <div className="px-5 md:px-8 lg:px-16 max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <p className="uppercase text-xs tracking-[0.2em] font-medium mb-3" style={{ color: `hsl(${colors.accent})` }}>Contato</p>
+              <h2 className="salon-heading mb-5">Fale conosco</h2>
+              <div className="w-16 h-0.5 mx-auto mb-5" style={{ backgroundColor: `hsl(${colors.accent})` }} />
+              <p className="text-muted-foreground text-sm">
+                Preencha seus dados e envie direto pelo WhatsApp.
+              </p>
+            </div>
+            <LeadSiteContactForm
+              phone={lead.phone}
+              companyName={displayName}
+              services={lead.services_list || undefined}
+              colors={colors}
+            />
+          </div>
+        </section>
+
+        {/* Google Maps */}
+        <section className="py-20">
           <div className="px-5 md:px-8 lg:px-16 max-w-5xl mx-auto">
             <div className="text-center mb-12">
               <p className="uppercase text-xs tracking-[0.2em] font-medium mb-3" style={{ color: `hsl(${colors.accent})` }}>Localização</p>
@@ -269,7 +311,7 @@ const LeadSite = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-10 py-5 text-lg font-semibold rounded-lg transition-all hover:brightness-110 shadow-xl"
-              style={{ backgroundColor: `hsl(${colors.accent})`, color: `hsl(${colors.primary})` }}
+              style={{ backgroundColor: "#25D366", color: "#fff" }}
             >
               <MessageCircle className="w-6 h-6" />
               {content.ctaText}
@@ -285,6 +327,18 @@ const LeadSite = () => {
             <div>
               <h3 className="font-display text-lg font-semibold mb-4" style={{ color: `hsl(${colors.primaryForeground})` }}>{displayName}</h3>
               <p className="text-sm leading-relaxed" style={{ color: `hsl(${colors.primaryForeground} / 0.7)` }}>{content.footerTagline}</p>
+              {lead.instagram && (
+                <a
+                  href={`https://instagram.com/${lead.instagram.replace("@", "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 mt-4 text-sm hover:opacity-80 transition-opacity"
+                  style={{ color: `hsl(${colors.accent})` }}
+                >
+                  <Instagram className="w-4 h-4" />
+                  {lead.instagram}
+                </a>
+              )}
             </div>
             <div className="space-y-4">
               <div className="flex items-start gap-3 text-sm" style={{ color: `hsl(${colors.primaryForeground} / 0.8)` }}>
@@ -319,11 +373,12 @@ const LeadSite = () => {
         href={whatsappLink}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Fale conosco pelo WhatsApp"
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-transform hover:scale-110"
+        aria-label="Chamar no WhatsApp agora"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-lg transition-transform hover:scale-105 text-white font-semibold text-sm"
         style={{ backgroundColor: "#25D366" }}
       >
-        <MessageCircle className="w-6 h-6 text-white" />
+        <MessageCircle className="w-5 h-5" />
+        <span className="hidden sm:inline">Chamar no WhatsApp</span>
       </a>
     </div>
   );

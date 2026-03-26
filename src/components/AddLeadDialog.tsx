@@ -5,10 +5,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { availableNiches } from "@/lib/niche-content";
 import LeadSiteActions from "./LeadSiteActions";
+import { Upload, X, ImageIcon } from "lucide-react";
 
 function slugify(text: string): string {
   return text
@@ -40,21 +42,87 @@ const AddLeadDialog = ({ open, onOpenChange }: Props) => {
   const [niche, setNiche] = useState("");
   const [city, setCity] = useState("");
   const [phone, setPhone] = useState("");
+  const [googleMapsUrl, setGoogleMapsUrl] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [servicesList, setServicesList] = useState("");
+  const [description, setDescription] = useState("");
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
+
+  const handlePhotoAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (photos.length + files.length > 10) {
+      toast({ title: "Máximo de 10 fotos", variant: "destructive" });
+      return;
+    }
+    const newPhotos = [...photos, ...files];
+    setPhotos(newPhotos);
+    const newPreviews = files.map((f) => URL.createObjectURL(f));
+    setPhotoPreviews((prev) => [...prev, ...newPreviews]);
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setPhotoPreviews((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const uploadPhotos = async (slug: string): Promise<string[]> => {
+    const urls: string[] = [];
+    for (let i = 0; i < photos.length; i++) {
+      const file = photos[i];
+      const ext = file.name.split(".").pop();
+      const path = `${slug}/${Date.now()}-${i}.${ext}`;
+      const { error } = await supabase.storage
+        .from("lead-photos")
+        .upload(path, file);
+      if (error) {
+        console.error("Upload error:", error);
+        continue;
+      }
+      const { data: urlData } = supabase.storage
+        .from("lead-photos")
+        .getPublicUrl(path);
+      urls.push(urlData.publicUrl);
+    }
+    return urls;
+  };
 
   const mutation = useMutation({
     mutationFn: async () => {
       const slug = slugify(companyName);
       const whatsappPhone = phoneToWhatsApp(phone);
+      setUploading(true);
+
+      // Upload photos if any
+      let photoUrls: string[] = [];
+      if (photos.length > 0) {
+        photoUrls = await uploadPhotos(slug);
+      }
+
+      const servicesArray = servicesList
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
       const { error } = await supabase.from("leads").insert({
         company_name: companyName.trim(),
         niche: niche.trim(),
         city: city.trim(),
         phone: whatsappPhone,
         slug,
-      });
+        google_maps_url: googleMapsUrl.trim() || null,
+        instagram: instagram.trim() || null,
+        services_list: servicesArray.length > 0 ? servicesArray : null,
+        description: description.trim() || null,
+      } as any);
       if (error) throw error;
+      setUploading(false);
       return slug;
     },
     onSuccess: (slug) => {
@@ -63,6 +131,7 @@ const AddLeadDialog = ({ open, onOpenChange }: Props) => {
       setCreatedSlug(slug);
     },
     onError: (err: Error) => {
+      setUploading(false);
       toast({
         title: "Erro ao gerar site",
         description: err.message.includes("duplicate")
@@ -79,6 +148,13 @@ const AddLeadDialog = ({ open, onOpenChange }: Props) => {
       setNiche("");
       setCity("");
       setPhone("");
+      setGoogleMapsUrl("");
+      setInstagram("");
+      setServicesList("");
+      setDescription("");
+      photoPreviews.forEach((p) => URL.revokeObjectURL(p));
+      setPhotos([]);
+      setPhotoPreviews([]);
       setCreatedSlug(null);
     }
     onOpenChange(val);
@@ -101,13 +177,14 @@ const AddLeadDialog = ({ open, onOpenChange }: Props) => {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display">Novo Lead</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 pt-2">
+          {/* Required fields */}
           <div>
-            <Label htmlFor="company">Nome da empresa</Label>
+            <Label htmlFor="company">Nome da empresa *</Label>
             <Input
               id="company"
               value={companyName}
@@ -116,7 +193,7 @@ const AddLeadDialog = ({ open, onOpenChange }: Props) => {
             />
           </div>
           <div>
-            <Label htmlFor="niche">Nicho</Label>
+            <Label htmlFor="niche">Nicho *</Label>
             <Select value={niche} onValueChange={setNiche}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o nicho" />
@@ -131,16 +208,16 @@ const AddLeadDialog = ({ open, onOpenChange }: Props) => {
             </Select>
           </div>
           <div>
-            <Label htmlFor="city">Cidade</Label>
+            <Label htmlFor="city">Cidade *</Label>
             <Input
               id="city"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder="Ex: São Paulo, SP"
+              placeholder="Ex: Campinas, SP"
             />
           </div>
           <div>
-            <Label htmlFor="phone">Telefone (WhatsApp)</Label>
+            <Label htmlFor="phone">WhatsApp *</Label>
             <Input
               id="phone"
               value={phone}
@@ -148,12 +225,101 @@ const AddLeadDialog = ({ open, onOpenChange }: Props) => {
               placeholder="(11) 99999-9999"
             />
           </div>
+
+          {/* Divider */}
+          <div className="border-t border-border pt-3">
+            <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-medium">Campos opcionais</p>
+          </div>
+
+          {/* Optional fields */}
+          <div>
+            <Label htmlFor="gmb">Link do Google Meu Negócio</Label>
+            <Input
+              id="gmb"
+              value={googleMapsUrl}
+              onChange={(e) => setGoogleMapsUrl(e.target.value)}
+              placeholder="https://maps.app.goo.gl/..."
+            />
+          </div>
+          <div>
+            <Label htmlFor="instagram">Instagram</Label>
+            <Input
+              id="instagram"
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value)}
+              placeholder="@seuinstagram"
+            />
+          </div>
+          <div>
+            <Label htmlFor="services">Serviços principais</Label>
+            <Input
+              id="services"
+              value={servicesList}
+              onChange={(e) => setServicesList(e.target.value)}
+              placeholder="Ex: Corte, Escova, Coloração (separados por vírgula)"
+            />
+            <p className="text-xs text-muted-foreground mt-1">Separe os serviços por vírgula</p>
+          </div>
+          <div>
+            <Label htmlFor="description">Descrição do negócio</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Conte um pouco sobre o negócio..."
+              rows={3}
+            />
+          </div>
+
+          {/* Photo upload */}
+          <div>
+            <Label>Fotos do negócio</Label>
+            <div className="mt-2">
+              {photoPreviews.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mb-3">
+                  {photoPreviews.map((src, i) => (
+                    <div key={i} className="relative aspect-square rounded-md overflow-hidden border border-border">
+                      <img src={src} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(i)}
+                        className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <label
+                htmlFor="photo-upload"
+                className="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-muted-foreground/50 transition-colors"
+              >
+                <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {photos.length > 0
+                    ? `${photos.length}/10 fotos selecionadas`
+                    : "Clique para adicionar fotos"}
+                </span>
+                <input
+                  id="photo-upload"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handlePhotoAdd}
+                  className="hidden"
+                />
+              </label>
+              <p className="text-xs text-muted-foreground mt-1">Até 10 fotos. As fotos serão priorizadas na galeria do site.</p>
+            </div>
+          </div>
+
           <Button
             onClick={() => mutation.mutate()}
-            disabled={!isValid || mutation.isPending}
+            disabled={!isValid || mutation.isPending || uploading}
             className="w-full bg-gold text-foreground hover:bg-gold/90"
           >
-            {mutation.isPending ? "Gerando site..." : "🚀 Gerar Site"}
+            {uploading ? "Enviando fotos..." : mutation.isPending ? "Gerando site..." : "🚀 Gerar Site"}
           </Button>
         </div>
       </DialogContent>
