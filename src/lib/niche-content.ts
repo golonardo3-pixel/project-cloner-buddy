@@ -19,6 +19,7 @@ export interface NicheContent {
   heroTitle: string;
   heroSubtitle: string;
   heroImage: string;
+  heroVideo?: string;
   aboutLabel: string;
   aboutHeading: string;
   aboutText: string;
@@ -39,6 +40,7 @@ interface NicheTemplate {
   heroTitle: (city: string) => string;
   heroSubtitle: (city: string, company: string) => string;
   heroImage: string;
+  heroVideo?: string;
   aboutLabel: string;
   aboutHeading: string;
   aboutText: (city: string, company: string) => string;
